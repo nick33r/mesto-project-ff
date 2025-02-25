@@ -33,3 +33,10 @@ function deleteCard(itemToDelete) {
 // Вывести карточки на страницу
 
 initialCards.forEach(card => createCard(card, deleteCard));
+import '../pages/index.css';
+
+// !!! Удалить лишние scripts из index.html !!
+// теперь скрипты добавляет webpack
+
+// !!! Изменить ссылки в тегах img в index.html !!!
+// Должно быть так src="<%=require('./images/logo.png')%>"
