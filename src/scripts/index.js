@@ -1,42 +1,23 @@
-// @todo: Темплейт карточки ??
+// Импорт модулей js
 
-// DOM узлы
+import {createCard, deleteCard} from './components/card.js';
+import {openModal, closeModal} from './components/modal.js';
 
-const placesList = document.querySelector('.places__list');
+// Импорт данных (дефолтные карточки при загрузке страницы)
 
-// Функция создания карточки
+import {initialCards} from './cards.js';
 
-function createCard(card, handleDelete) {
-  const cardTemplate = document.querySelector('#card-template').content;
-  const cardItem = cardTemplate.querySelector('.places__item').cloneNode(true);
-  const cardImage = cardItem.querySelector('.card__image');
-  const deleteButton = cardItem.querySelector('.card__delete-button');
-
-  cardItem.querySelector('.card__title').textContent = card.name;
-  cardImage.src = card.link;
-  cardImage.alt = card.name;
-
-  placesList.appendChild(cardItem);
-
-  deleteButton.addEventListener('click', () => {
-    handleDelete(cardItem);
-  });
-}
-
-// Функция удаления карточки
-
-
-function deleteCard(itemToDelete) {
-  itemToDelete.remove();
-}
-
-// Вывести карточки на страницу
+// Вывести дефолтные карточки на страницу при загрузке
 
 initialCards.forEach(card => createCard(card, deleteCard));
 import '../pages/index.css';
 
-// !!! Удалить лишние scripts из index.html !!
-// теперь скрипты добавляет webpack
+// Работа модальных окон
 
-// !!! Изменить ссылки в тегах img в index.html !!!
-// Должно быть так src="<%=require('./images/logo.png')%>"
+const editButton = document.querySelector('.profile__edit-button');
+const editPopup = document.querySelector('.popup_type_edit');
+const addButton = document.querySelector('.profile__add-button');
+const addPopup = document.querySelector('.popup_type_new-card');
+
+openModal(editButton, editPopup, closeModal);
+openModal(addButton, addPopup, closeModal);
