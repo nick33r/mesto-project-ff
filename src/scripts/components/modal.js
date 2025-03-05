@@ -122,9 +122,9 @@ function formAddCardSubmit(evt) {
   initialCards.forEach(card => createCard(card, deleteCard, likeCard));
 
   // 4. Добавляем обработчик нажатия на картинку
-  const imageList = document.querySelectorAll('.card__image');
+  const imagesList = document.querySelectorAll('.card__image');
   const imagePopup = document.querySelector('.popup_type_image');
-  imageList.forEach(image => openImageModal(image, imagePopup, closeModal));
+  imagesList.forEach(image => openImageModal(image, imagePopup, closeModal));
 
   // 5. Очищаем форму
   nameInput.value = '';
