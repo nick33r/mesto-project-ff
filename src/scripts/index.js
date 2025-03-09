@@ -4,6 +4,8 @@ import '../pages/index.css';
 
 import {createCard, deleteCard, likeCard} from './components/card.js';
 import {openModal, closeModal, closeOnEscape, removeKeydownListeners} from './components/modal.js';
+import {formEditSubmit, formAddCardSubmit} from './components/form-submit.js';
+import {openImageModal} from './components/image.js';
 
 // Импорт данных (дефолтные карточки при загрузке страницы)
 
@@ -26,11 +28,29 @@ const nameElement = document.querySelector('.profile__title');
 const jobElement = document.querySelector('.profile__description');
 const nameInput = document.querySelector('.popup__input_type_name');
 const jobInput = document.querySelector('.popup__input_type_description');
-// Узлы для добавления новой карточки (функция formAddCardSubmit)
-const popupImage = document.querySelector('.popup__image');
+// Узлы для попапа с картинкой
+const imagePopupPicture = document.querySelector('.popup__image');
 const caption = document.querySelector('.popup__caption');
+// Узлы для добавления новой карточки (функция formAddCardSubmit)
 const imageNameInput = document.querySelector('.popup__input_type_card-name');
 const linkInput = document.querySelector('.popup__input_type_url');
+
+// Конфиг для открытия попапа с картинкой (функция openImageModal)
+
+const imageOpenConfig = {
+  popup: imagePopup,
+  image: imagePopupPicture,
+  caption: caption
+};
+
+// Конфиг для редактирования профиля (функция formEditSubmit)
+
+const profileEditConfig = {
+  newName: nameInput,
+  newJob: jobInput,
+  name: nameElement,
+  job: jobElement
+};
 
 // ------------------ Инициализация страницы ------------------
 
@@ -40,7 +60,9 @@ initialCards.forEach(card => {
   placesList.appendChild(createCard(card, deleteCard, likeCard));
 });
 
-// Добавляем открытие и закрытие(по клику) попапов
+// ------------------ Слушатели событий ------------------
+
+// Добавляем слушатели открытий попапов и закрытия(по клику)
 
 editButton.addEventListener('click', () => {
   nameInput.value = nameElement.textContent;
@@ -49,6 +71,8 @@ editButton.addEventListener('click', () => {
 });
 
 addButton.addEventListener('click', () => {
+  imageNameInput.value = '';
+  linkInput.value = '';
   openModal(addPopup, closeOnEscape);
 });
 
@@ -57,66 +81,36 @@ popups.forEach(popup => {
   closeModal(popup, closeButton);
 });
 
-// Добавляем открытие попапа с картинкой
+// Добавляем слушатели открытия попапа с картинкой на все изображения
 
 const images = document.querySelectorAll('.card__image');
 
 images.forEach(image => {
   image.addEventListener('click', () => {
-    openImageModal(image, imagePopup, closeOnEscape);
+    openImageModal(image, imageOpenConfig, closeOnEscape);
   });
 });
 
-function openImageModal (image, modal, handleKeydownClose) {
-  popupImage.src = image.src;
-  popupImage.alt = image.alt;
-  caption.textContent = image.alt;
+// Добавляем обработку отправки формы редактирования профиля
 
-  modal.classList.add('popup_is-opened');
-  handleKeydownClose(modal);
-};
-
-// Добавляем обработку отправки форм
-
-editPopup.addEventListener('submit', formEditSubmit);
-addPopup.addEventListener('submit', formAddCardSubmit);
-
-// Функции обработки отправки форм
-
-function formEditSubmit(evt) {
-  evt.preventDefault();
-
-  const name = nameInput.value;
-  const job = jobInput.value;
-  
-  nameElement.textContent = name;
-  jobElement.textContent = job;
+editPopup.addEventListener('submit', (event) => {
+  formEditSubmit(event, profileEditConfig);
 
   editPopup.classList.remove('popup_is-opened');
   removeKeydownListeners();
-};
+});
 
-function formAddCardSubmit(evt) {
-  evt.preventDefault();
+// Добавляем обработку отправки формы добавления новой карточки
 
-  const newCard = {
-    name: imageNameInput.value,
-    link: linkInput.value
-  };
-  
-  const newCardElement = createCard(newCard, deleteCard, likeCard);
+addPopup.addEventListener('submit', (event) => {
+  const newCardElement = formAddCardSubmit(event, imageNameInput, linkInput);
   placesList.prepend(newCardElement);
 
   const newImage = newCardElement.querySelector('.card__image');
   newImage.addEventListener('click', () => {
-    openImageModal(newImage, imagePopup, closeOnEscape);
+    openImageModal(newImage, imageOpenConfig, closeOnEscape);
   });
-
-  imageNameInput.value = '';
-  linkInput.value = '';
 
   addPopup.classList.remove('popup_is-opened');
   removeKeydownListeners();
-};
-
-export { placesList };
+});
