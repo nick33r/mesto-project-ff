@@ -1,11 +1,8 @@
-// DOM узлы
-
-const placesList = document.querySelector('.places__list');
-
 // Функция создания карточки
-// input: card - объект карточки
+// input: card - объект карточки (должен содержать свойства name и link)
 // input: handleDelete - функция удаления карточки
 // input: handleLike - функция добавления/снятия лайка
+// output: DOM-узел новой карточки
 
 function createCard(card, handleDelete, handleLike) {
   const cardTemplate = document.querySelector('#card-template').content;
@@ -18,8 +15,6 @@ function createCard(card, handleDelete, handleLike) {
   cardImage.src = card.link;
   cardImage.alt = card.name;
 
-  placesList.appendChild(cardItem);
-
   deleteButton.addEventListener('click', () => {
     handleDelete(cardItem);
   });
@@ -27,15 +22,19 @@ function createCard(card, handleDelete, handleLike) {
   likeButton.addEventListener('click', () => {
     handleLike(likeButton);
   });
+
+  return cardItem;
 };
 
 // Функция удаления карточки
+// input: itemToDelete - DOM-узел карточки
 
 function deleteCard(itemToDelete) {
   itemToDelete.remove();
 };
 
 // Функция добавления/снятия лайка
+// input: itemToLike - DOM элемент кнопки лайка
 
 function likeCard(itemToLike) {
   itemToLike.classList.toggle('card__like-button_is-active');
