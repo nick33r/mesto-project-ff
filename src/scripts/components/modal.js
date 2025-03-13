@@ -1,41 +1,34 @@
 // Функция открытия модального окна
 // input: modal - DOM-узел модального окна
-// input: handleKeydownClose - функция закрытия модального окна по нажатию Escape
 
-function openModal (modal, handleKeydownClose) {
+function openModal (modal) {
   modal.classList.add('popup_is-opened');
-  handleKeydownClose(modal);
+  document.addEventListener('keydown', closeByEscape);
 };
 
 // Функция закрытия модального окна по клику
 // input: modal - DOM-узел модального окна
-// input: closeButton - DOM-узел кнопки закрытия
 
-function closeModal (modal, closeButton) {
-  modal.addEventListener('click', (event) => {
-    if (event.target === closeButton || event.target === modal) {
-      modal.classList.remove('popup_is-opened');
-      removeKeydownListeners();
-    };
-  });
+function closeModal (modal) {
+  modal.classList.remove('popup_is-opened');
+  removeKeydownListeners();
 };
 
 // Функция закрытия модального окна по нажатию Escape
-// input: modal - DOM-узел модального окна
+// input: event - событие нажатия Escape
 
-function closeOnEscape (modal) {
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') {
-      modal.classList.remove('popup_is-opened');
-      removeKeydownListeners();
-    }; 
-  });
+function closeByEscape (event) {
+  if (event.key === 'Escape') {
+    const openedPopup = document.querySelector('.popup_is-opened');
+    openedPopup.classList.remove('popup_is-opened');
+    removeKeydownListeners();
+  };
 };
 
 // Функция удаления обработчиков нажатия Escape
 
 function removeKeydownListeners () {
-  document.removeEventListener('keydown', closeOnEscape);
+  document.removeEventListener('keydown', closeByEscape);
 };
 
-export { openModal, closeModal, closeOnEscape, removeKeydownListeners };
+export { openModal, closeModal, closeByEscape, removeKeydownListeners };

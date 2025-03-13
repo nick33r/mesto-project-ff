@@ -2,9 +2,10 @@
 // input: card - объект карточки (должен содержать свойства name и link)
 // input: handleDelete - функция удаления карточки
 // input: handleLike - функция добавления/снятия лайка
+// input: handleOpenImage - функция открытия картинки по клику
 // output: DOM-узел новой карточки
 
-function createCard(card, handleDelete, handleLike) {
+function createCard(card, handleDelete, handleLike, handleOpenImage) {
   const cardTemplate = document.querySelector('#card-template').content;
   const cardItem = cardTemplate.querySelector('.places__item').cloneNode(true);
   const cardImage = cardItem.querySelector('.card__image');
@@ -21,6 +22,10 @@ function createCard(card, handleDelete, handleLike) {
 
   likeButton.addEventListener('click', () => {
     handleLike(likeButton);
+  });
+
+  cardImage.addEventListener('click', () => {
+    handleOpenImage(card.name, card.link);
   });
 
   return cardItem;
