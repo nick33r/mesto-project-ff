@@ -31,4 +31,4 @@ function removeKeydownListeners () {
   document.removeEventListener('keydown', closeByEscape);
 };
 
-export { openModal, closeModal, closeByEscape, removeKeydownListeners };
+export { openModal, closeModal };
