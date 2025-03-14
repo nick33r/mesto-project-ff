@@ -20,8 +20,7 @@ function closeModal (modal) {
 function closeByEscape (event) {
   if (event.key === 'Escape') {
     const openedPopup = document.querySelector('.popup_is-opened');
-    openedPopup.classList.remove('popup_is-opened');
-    removeKeydownListeners();
+    closeModal(openedPopup);
   };
 };
 

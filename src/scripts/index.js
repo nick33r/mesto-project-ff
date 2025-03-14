@@ -33,6 +33,10 @@ const caption = document.querySelector('.popup__caption');
 // Узлы для добавления новой карточки
 const imageNameInput = document.querySelector('.popup__input_type_card-name');
 const linkInput = document.querySelector('.popup__input_type_url');
+// Формы для обработки
+const editForm = document.forms['edit-profile'];
+const addForm = document.forms['new-place']; 
+
 
 // ------------------ Инициализация страницы ------------------
 
@@ -71,7 +75,7 @@ popups.forEach(popup => {
 
 // Добавляем обработку отправки формы редактирования профиля
 
-editPopup.addEventListener('submit', (event) => {
+editForm.addEventListener('submit', (event) => {
   event.preventDefault();
 
   const newName = nameInput.value;
@@ -85,7 +89,7 @@ editPopup.addEventListener('submit', (event) => {
 
 // Добавляем обработку отправки формы добавления новой карточки
 
-addPopup.addEventListener('submit', (event) => {
+addForm.addEventListener('submit', (event) => {
   event.preventDefault();
 
   const newCard = {
