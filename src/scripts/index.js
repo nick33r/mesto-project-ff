@@ -4,6 +4,7 @@ import '../pages/index.css';
 
 import {createCard, deleteCard, likeCard} from './components/card.js';
 import {openModal, closeModal} from './components/modal.js';
+import {enableValidation} from './components/validation.js';
 
 // Импорт данных (дефолтные карточки при загрузке страницы)
 
@@ -115,3 +116,19 @@ function openImagePopup (name, link) {
 
   openModal(imagePopup);
 };
+
+// TEST !!!!!
+
+nameInput.value = nameElement.textContent;
+jobInput.value = jobElement.textContent;
+
+const validationConfig = {
+  formSelector: '.popup__form',
+  inputSelector: '.popup__input',
+  submitButtonSelector: '.popup__button',
+  inactiveButtonClass: 'popup__button_disabled',
+  inputErrorClass: 'popup__input_type_error',
+  errorClass: 'popup__error_visible'
+};
+
+enableValidation(validationConfig);
