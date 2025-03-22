@@ -4,7 +4,7 @@ import '../pages/index.css';
 
 import {createCard, deleteCard, likeCard} from './components/card.js';
 import {openModal, closeModal} from './components/modal.js';
-import {enableValidation} from './components/validation.js';
+import {enableValidation, clearValidation} from './components/validation.js';
 
 // Импорт данных (дефолтные карточки при загрузке страницы)
 
@@ -54,12 +54,14 @@ initialCards.forEach(card => {
 editButton.addEventListener('click', () => {
   nameInput.value = nameElement.textContent;
   jobInput.value = jobElement.textContent;
+  clearValidation(editForm, validationConfig);
   openModal(editPopup);
 });
 
 addButton.addEventListener('click', () => {
   imageNameInput.value = '';
   linkInput.value = '';
+  clearValidation(addForm, validationConfig);
   openModal(addPopup);
 });
 
@@ -118,9 +120,6 @@ function openImagePopup (name, link) {
 };
 
 // TEST !!!!!
-
-nameInput.value = nameElement.textContent;
-jobInput.value = jobElement.textContent;
 
 const validationConfig = {
   formSelector: '.popup__form',

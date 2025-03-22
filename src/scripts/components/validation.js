@@ -29,6 +29,12 @@ function hideInputError(formElement, inputElement, validationConfig) {
 // Функция проверки валидности поля
 
 function checkInputValidity(formElement, inputElement, validationConfig) {
+  if (inputElement.validity.patternMismatch) {
+    inputElement.setCustomValidity(inputElement.dataset.errorMessage);
+  } else {
+    inputElement.setCustomValidity('');
+  }
+
   if (!inputElement.validity.valid) {
     showInputError(formElement, inputElement, inputElement.validationMessage, validationConfig);
   } else {
@@ -82,4 +88,17 @@ function enableValidation (validationConfig) {
   });
 };
 
-export {enableValidation};
+// Функция 
+
+function clearValidation (formElement, validationConfig) {
+  const inputList = Array.from(formElement.querySelectorAll(validationConfig.inputSelector));
+  const submitButtonElement = formElement.querySelector(validationConfig.submitButtonSelector);
+
+  inputList.forEach((inputElement) => {
+    hideInputError(formElement, inputElement, validationConfig);
+  });
+
+  toggleButtonState(inputList, submitButtonElement, validationConfig);
+};
+
+export {enableValidation, clearValidation};
