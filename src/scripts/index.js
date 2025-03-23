@@ -5,10 +5,11 @@ import '../pages/index.css';
 import {createCard, deleteCard, likeCard} from './components/card.js';
 import {openModal, closeModal} from './components/modal.js';
 import {enableValidation, clearValidation} from './components/validation.js';
+import {getUserData, getCards, patchEditProfile, postNewCard} from './components/api.js';
 
 // Импорт данных (дефолтные карточки при загрузке страницы)
 
-import {initialCards} from './cards.js';
+// import {initialCards} from './cards.js';
 
 // ------------------ DOM узлы ------------------
 
@@ -28,6 +29,8 @@ const nameElement = document.querySelector('.profile__title');
 const jobElement = document.querySelector('.profile__description');
 const nameInput = document.querySelector('.popup__input_type_name');
 const jobInput = document.querySelector('.popup__input_type_description');
+// Аватар профиля
+const profileImage = document.querySelector('.profile__image');
 // Узлы для открытия попапа с картинкой
 const imagePopupPicture = document.querySelector('.popup__image');
 const caption = document.querySelector('.popup__caption');
@@ -38,14 +41,39 @@ const linkInput = document.querySelector('.popup__input_type_url');
 const editForm = document.forms['edit-profile'];
 const addForm = document.forms['new-place']; 
 
+// Конфиги
+
+// Конфиг для API
+const apiConfig = {
+  baseUrl: 'https://nomoreparties.co/v1/wff-cohort-35',
+  headers: {
+    authorization: '025ba30a-6c57-44d8-9f11-68a718bec502',
+    'Content-Type': 'application/json'
+  }
+};
 
 // ------------------ Инициализация страницы ------------------
 
-// Вывести дефолтные карточки на страницу при загрузке
+// Вывести данные профиля из API
 
-initialCards.forEach(card => {
-  placesList.appendChild(createCard(card, deleteCard, likeCard, openImagePopup));
-});
+getUserData(apiConfig, nameElement, jobElement, profileImage);
+
+// Вывести дефолтные карточки на страницу при загрузке, API
+
+Promise.all([getCards(apiConfig)])
+  .then(([cards]) => {
+    cards.forEach(card => {
+      placesList.appendChild(createCard(card, deleteCard, likeCard, openImagePopup));
+    });
+  })
+  .catch((err) => {
+    console.log(err);
+  })
+;
+
+// initialCards.forEach(card => {
+//   placesList.appendChild(createCard(card, deleteCard, likeCard, openImagePopup));
+// });
 
 // ------------------ Слушатели событий ------------------
 
@@ -87,6 +115,10 @@ editForm.addEventListener('submit', (event) => {
   nameElement.textContent = newName;
   jobElement.textContent = newJob;
 
+  patchEditProfile(apiConfig, nameInput, jobInput)
+    .catch((err) => {
+      console.log(err);
+    });
   closeModal(editPopup);
 });
 
@@ -95,17 +127,25 @@ editForm.addEventListener('submit', (event) => {
 addForm.addEventListener('submit', (event) => {
   event.preventDefault();
 
-  const newCard = {
-    name: imageNameInput.value,
-    link: linkInput.value
-  };
+  // const newCard = {
+  //   name: imageNameInput.value,
+  //   link: linkInput.value
+  // };
 
-  const newCardElement = createCard(newCard, deleteCard, likeCard, openImagePopup);
-  placesList.prepend(newCardElement);
-
-  imageNameInput.value = '';
-  linkInput.value = '';
-
+  Promise.all([postNewCard(apiConfig, imageNameInput, linkInput)])
+    .then(([newCard]) => {
+      const newCardElement = createCard(newCard, deleteCard, likeCard, openImagePopup);
+      placesList.prepend(newCardElement);
+    })
+    .then(() => {
+      imageNameInput.value = '';
+      linkInput.value = '';
+    })
+    .catch((err) => {
+      imageNameInput.value = '';
+      linkInput.value = '';
+      console.log(err);
+    });
   closeModal(addPopup);
 });
 
@@ -131,3 +171,24 @@ const validationConfig = {
 };
 
 enableValidation(validationConfig);
+
+// TEST 2 !!!!!
+
+// const apiConfig = {
+//   baseUrl: 'https://nomoreparties.co/v1/wff-cohort-35',
+//   headers: {
+//     authorization: '025ba30a-6c57-44d8-9f11-68a718bec502',
+//     'Content-Type': 'application/json'
+//   }
+// };
+
+profileImage.addEventListener('click', async () => {
+  const res = await fetch(`${apiConfig.baseUrl}/users/me`, {
+    method: 'GET',
+    headers: {
+      authorization: apiConfig.headers.authorization
+    }
+  });
+  const result_1 = await res.json();
+  console.log(result_1);
+});
