@@ -5,7 +5,7 @@ import '../pages/index.css';
 import {createCard, deleteCard, likeCard} from './components/card.js';
 import {openModal, closeModal} from './components/modal.js';
 import {enableValidation, clearValidation} from './components/validation.js';
-import {getUserData, getCards, patchEditProfile, postNewCard} from './components/api.js';
+import {getUserData, getCards, patchEditProfile, postNewCard, deleteCardInDatabase, toggleLike} from './components/api.js';
 
 // Импорт данных (дефолтные карточки при загрузке страницы)
 
@@ -39,7 +39,9 @@ const imageNameInput = document.querySelector('.popup__input_type_card-name');
 const linkInput = document.querySelector('.popup__input_type_url');
 // Формы для обработки
 const editForm = document.forms['edit-profile'];
-const addForm = document.forms['new-place']; 
+const addForm = document.forms['new-place'];
+// Количество лайков
+// const cardLikes = document.querySelector('.card__likes');
 
 // Конфиги
 
@@ -49,21 +51,67 @@ const apiConfig = {
   headers: {
     authorization: '025ba30a-6c57-44d8-9f11-68a718bec502',
     'Content-Type': 'application/json'
-  }
+  },
+  userId: ''
 };
 
 // ------------------ Инициализация страницы ------------------
 
 // Вывести данные профиля из API
 
-getUserData(apiConfig, nameElement, jobElement, profileImage);
+Promise.all([getUserData(apiConfig, nameElement, jobElement, profileImage)])
+  .then(([data]) => {
+    nameElement.textContent = data.name;
+    jobElement.textContent = data.about;
+    profileImage.src = data.avatar;
+
+    apiConfig.userId = data['_id'];
+  })
+  .catch((err) => {
+    console.log(err);
+  })
+;
 
 // Вывести дефолтные карточки на страницу при загрузке, API
 
 Promise.all([getCards(apiConfig)])
   .then(([cards]) => {
     cards.forEach(card => {
-      placesList.appendChild(createCard(card, deleteCard, likeCard, openImagePopup));
+      const newCardElement = createCard(card, deleteCard, likeCard, openImagePopup);
+      const deleteButton = newCardElement.querySelector('.card__delete-button');
+      const likeButton = newCardElement.querySelector('.card__like-button');
+      const cardLikes = newCardElement.querySelector('.card__likes');
+
+      placesList.appendChild(newCardElement);
+      cardLikes.textContent = `${card.likes.length}`;
+
+      if (card.likes.length > 0) {
+        const isLiked = card.likes.some(like => like['_id'] === apiConfig.userId);
+
+        if (isLiked) {
+          likeButton.classList.add('card__like-button_is-active');
+        }
+      };
+
+      likeButton.addEventListener('click', () => {
+        const method = likeButton.classList.contains('card__like-button_is-active') ? 'PUT' : 'DELETE';
+
+        Promise.all([toggleLike(apiConfig, card['_id'], method)])
+          .then(([data]) => {
+            cardLikes.textContent = `${data.likes.length}`;
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      });
+      
+      if (card.owner._id === apiConfig.userId) {
+        deleteButton.addEventListener('click', () => {
+          deleteCardInDatabase(apiConfig, card['_id']);
+        });
+      } else {
+        deleteButton.remove();
+      }
     });
   })
   .catch((err) => {
@@ -146,6 +194,7 @@ addForm.addEventListener('submit', (event) => {
       linkInput.value = '';
       console.log(err);
     });
+
   closeModal(addPopup);
 });
 

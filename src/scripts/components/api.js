@@ -3,7 +3,7 @@
 
 // Функция вывода данных профиля
 
-function getUserData (apiConfig, profileName, profileJob, profileImage) {
+function getUserData (apiConfig) {
   return fetch(`${apiConfig.baseUrl}/users/me`, {
     method: 'GET',
     headers: {
@@ -17,9 +17,7 @@ function getUserData (apiConfig, profileName, profileJob, profileImage) {
       return Promise.reject(`Ошибка: ${res.status}`);
     })
     .then((data) => {
-      profileName.textContent = data.name;
-      profileJob.textContent = data.about;
-      profileImage.src = data.avatar;
+      return data;
     })
     .catch((err) => {
       console.log(err);
@@ -96,8 +94,46 @@ function postNewCard (apiConfig, imageNameInput, linkInput) {
     });
 };
 
-// 
+// Функция удаления карточки из базы данных
 
+function deleteCardInDatabase (apiConfig, cardId) {
+  return fetch(`${apiConfig.baseUrl}/cards/${cardId}`, {
+    method: 'DELETE',
+    headers: {
+      authorization: apiConfig.headers.authorization
+    }
+  })
+    .then((res) => {
+      if (!res.ok) {
+        return Promise.reject(res.status);
+      }
+    })
+    .catch((err) => {
+      return Promise.reject(`Ошибка при удалении карточки: ${err}`);
+    });
+};
 
+// Функция лайка карточки
 
-export { getUserData, getCards, patchEditProfile, postNewCard };
+function toggleLike (apiConfig, cardId, method) {
+  return fetch(`${apiConfig.baseUrl}/cards/likes/${cardId}`, {
+    method: method,
+    headers: {
+      authorization: apiConfig.headers.authorization
+    }
+  })
+    .then((res) => {
+      if (res.ok) {
+        return res.json();
+      }
+      return Promise.reject(res.status);
+    })
+    .then((data) => {
+      return data;
+    })
+    .catch((err) => {
+      return Promise.reject(`Ошибка при лайке карточки: ${err}`);
+    });
+};
+
+export { getUserData, getCards, patchEditProfile, postNewCard, deleteCardInDatabase, toggleLike };
