@@ -53,8 +53,6 @@ const avatarPopupInput = document.querySelector('.popup__input_type_avatar-url')
 const editForm = document.forms['edit-profile'];
 const addForm = document.forms['new-place'];
 const editAvatarForm = document.forms['edit-avatar'];
-// Количество лайков
-// const cardLikes = document.querySelector('.card__likes');
 
 // ------------------ Конфиги ------------------
 

@@ -1,5 +1,11 @@
-// Токен: 025ba30a-6c57-44d8-9f11-68a718bec502
-// Идентификатор группы: wff-cohort-35
+// Пример конфига который принимается на вход функциям
+// const apiConfig = {
+//   baseUrl: 'https://nomoreparties.co/v1/wff-fffff',
+//   headers: {
+//     authorization: '025ba30a-6c57-dsccs',
+//     'Content-Type': 'application/json'
+//   }
+// };
 
 // Функция вывода данных профиля
 

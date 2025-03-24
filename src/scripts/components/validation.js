@@ -88,7 +88,7 @@ function enableValidation (validationConfig) {
   });
 };
 
-// Функция 
+// Функция сброса ошибок валидации
 
 function clearValidation (formElement, validationConfig) {
   const inputList = Array.from(formElement.querySelectorAll(validationConfig.inputSelector));
