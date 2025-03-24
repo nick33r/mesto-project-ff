@@ -46,7 +46,7 @@
 .popup_is-opened{display:flex;opacity:1;pointer-events:all;transition:visibility 0s,opacity .6s;visibility:visible}
 .error-popup__content{align-items:center;background-color:#ff4d4d;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.15);color:#fff;display:flex;padding:15px 20px}
 .error-popup__message{font-size:14px;line-height:1.4;margin:0}
-.error-popup{bottom:20px;max-width:350px;position:fixed;right:20px;transform:translateX(150%);transition:transform .3s ease-out;width:100%;z-index:1000}.error-popup_visible{transform:translateX(0)}@keyframes fadeOut{0%{opacity:1}to{opacity:0}}.error-popup_hiding{animation:fadeOut .5s ease forwards}
+.error-popup{bottom:20px;max-width:350px;position:fixed;right:20px;transform:translateX(150%);transition:transform .3s ease-out;width:100%;z-index:1000}.error-popup_visible{transform:translateX(0)}
 
 
 /*# sourceMappingURL=main.css.map*/
