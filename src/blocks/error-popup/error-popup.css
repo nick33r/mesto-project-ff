@@ -1,0 +1,27 @@
+@import url('./__content/error-popup__content.css');
+@import url('./__massage/error-popup__message.css');
+
+.error-popup {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  transform: translateX(150%);
+  transition: transform 0.3s ease-out;
+  max-width: 350px;
+  width: 100%;
+}
+
+.error-popup_visible {
+  transform: translateX(0);
+}
+
+/* Анимация исчезновения */
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.error-popup_hiding {
+  animation: fadeOut 0.5s ease forwards;
+}
