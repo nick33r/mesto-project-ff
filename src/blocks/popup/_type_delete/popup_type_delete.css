@@ -1,0 +1,11 @@
+.popup_type_delete .popup__content {
+  min-height: 181px;
+}
+
+.popup_type_delete .popup__title {
+  line-height: 23px;
+}
+
+.popup_type_delete .popup__button {
+  margin-top: 38px;
+}

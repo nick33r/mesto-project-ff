@@ -5,6 +5,7 @@ import '../pages/index.css';
 import {createCard, deleteCard, likeCard} from './components/card.js';
 import {openModal, closeModal} from './components/modal.js';
 import {enableValidation, clearValidation} from './components/validation.js';
+import {showError, hideError} from './components/error-notification.js';
 import {
   // Получение данных
   getUserData,
@@ -32,6 +33,7 @@ const editPopup = document.querySelector('.popup_type_edit');
 const addPopup = document.querySelector('.popup_type_new-card');
 const imagePopup = document.querySelector('.popup_type_image');
 const editAvatarPopup = document.querySelector('.popup_type_edit-avatar');
+const acceptDeletePopup = document.querySelector('.popup_type_delete');
 // Массив попапов
 const popups = document.querySelectorAll('.popup');
 // Узлы для редактирования профиля
@@ -49,10 +51,18 @@ const imageNameInput = document.querySelector('.popup__input_type_card-name');
 const linkInput = document.querySelector('.popup__input_type_url');
 // Узлы для редактирования аватара
 const avatarPopupInput = document.querySelector('.popup__input_type_avatar-url');
+// Узлы для удаления карточки
+const acceptDeleteButton = document.querySelector('.popup__button_type_delete');
 // Формы для обработки
 const editForm = document.forms['edit-profile'];
 const addForm = document.forms['new-place'];
 const editAvatarForm = document.forms['edit-avatar'];
+// Переменные для удаления карточки
+let idCardToDelete;
+let cardToDelete;
+// Узлы для попапа с ошибкой
+const errorPopup = document.querySelector('.error-popup');
+const errorMessage = errorPopup.querySelector('.error-popup__message');
 
 // ------------------ Конфиги ------------------
 
@@ -115,6 +125,7 @@ Promise.all([getUserData(apiConfig), getCardsData(apiConfig)])
   })
   .catch((err) => {
     console.log(err);
+    showError(err, errorPopup, errorMessage);
   })
 ;
 
@@ -142,6 +153,8 @@ profileImage.addEventListener('click', () => {
   openModal(editAvatarPopup);
 });
 
+
+
 // Добавляем слушатели закрытий попапов по клику
 
 popups.forEach(popup => {
@@ -152,6 +165,8 @@ popups.forEach(popup => {
     };
   });
 });
+
+errorPopup.addEventListener('click', hideError(errorPopup));
 
 // Добавляем обработку отправки формы редактирования профиля
 
@@ -172,6 +187,7 @@ editForm.addEventListener('submit', (event) => {
     })
     .catch((err) => {
       console.log(err);
+      showError(err, errorPopup, errorMessage);
     })
     .finally(() => {
       submitButton.textContent = 'Сохранить';
@@ -197,6 +213,7 @@ addForm.addEventListener('submit', (event) => {
     })
     .catch((err) => {
       console.log(err);
+      showError(err, errorPopup, errorMessage);
     })
     .finally(() => {
       imageNameInput.value = '';
@@ -222,6 +239,7 @@ editAvatarForm.addEventListener('submit', (event) => {
     })
     .catch((err) => {
       console.log(err);
+      showError(err, errorPopup, errorMessage);
     })
     .finally(() => {
       avatarPopupInput.value = '';
@@ -229,6 +247,27 @@ editAvatarForm.addEventListener('submit', (event) => {
       closeModal(editAvatarPopup);
       submitButton.disabled = false;
     });
+});
+
+// Добавляем обработку удаления карточки
+
+acceptDeleteButton.addEventListener('click', () => {
+  acceptDeleteButton.disabled = true;
+  acceptDeleteButton.textContent = 'Удаление...';
+
+  deleteCardInDatabase(apiConfig, idCardToDelete)
+        .then(() => {
+          deleteCard(cardToDelete);
+        })
+        .catch((err) => {
+          console.log(err);
+          showError(err, errorPopup, errorMessage);
+        })
+        .finally(() => {
+          acceptDeleteButton.textContent = 'Да';
+          closeModal(acceptDeletePopup);
+          acceptDeleteButton.disabled = false;
+        });
 });
 
 // ------------------ Функции ------------------
@@ -268,6 +307,7 @@ function setupCardInteractions (cardData, newCardElement, apiConfig) {
       })
       .catch((err) => {
         console.log(err);
+        showError(err, errorPopup, errorMessage);
         likeCard(likeButton, previousButtonState);
         cardLikes.textContent = previousLikes;
       })
@@ -278,15 +318,12 @@ function setupCardInteractions (cardData, newCardElement, apiConfig) {
   
   if (cardData.owner['_id'] === apiConfig.userId) {
     deleteButton.addEventListener('click', () => {
-      deleteCardInDatabase(apiConfig, cardData['_id'])
-        .then(() => {
-          deleteCard(newCardElement);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      idCardToDelete = cardData['_id'];
+      cardToDelete = newCardElement;
+      openModal(acceptDeletePopup);
     });
   } else {
     deleteButton.remove();
   }
 };
+

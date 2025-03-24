@@ -11,3 +11,43 @@
 @import url('../blocks/popup/_is-animated/popup_is-animated.css');
 @import url('../blocks/popup/_is-opened/popup_is-opened.css');
 
+.error-popup {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  transform: translateX(150%);
+  transition: transform 0.3s ease-out;
+  max-width: 350px;
+  width: 100%;
+}
+
+.error-popup_visible {
+  transform: translateX(0);
+}
+
+.error-popup__content {
+  background-color: #ff4d4d;
+  color: white;
+  padding: 15px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+}
+
+.error-popup__message {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Анимация исчезновения */
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.error-popup_hiding {
+  animation: fadeOut 0.5s ease forwards;
+}
