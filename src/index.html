@@ -17,9 +17,9 @@
       <div class="profile__image" style="background-image: url('<%=require('./images/avatar.jpg')%>');"></div>
       <div class="profile__image-overlay"></div>
       <div class="profile__info">
-        <h1 class="profile__title">Жак-Ив Кусто</h1>
+        <h1 class="profile__title">Загрузка...</h1>
         <button class="profile__edit-button" type="button"></button>
-        <p class="profile__description">Исследователь океана</p>
+        <p class="profile__description"></p>
       </div>
       <button class="profile__add-button" type="button"></button>
     </section>
@@ -115,10 +115,11 @@
           id="edit-avatar-input" 
           type="url" 
           name="link" 
-          class="popup__input popup__input_type_url" 
+          class="popup__input popup__input_type_avatar-url" 
           placeholder="Ссылка на картинку" 
           required
         >
+        <span class="popup__error edit-avatar-input-error"></span>
         <button type="submit" class="button popup__button">Сохранить</button>
       </form>
     </div>

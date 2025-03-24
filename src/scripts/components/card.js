@@ -5,19 +5,14 @@
 // input: handleOpenImage - функция открытия картинки по клику
 // output: DOM-узел новой карточки
 
-function createCard(card, handleDelete, handleOpenImage) {
+function createCard(card, handleOpenImage) {
   const cardTemplate = document.querySelector('#card-template').content;
   const cardItem = cardTemplate.querySelector('.places__item').cloneNode(true);
   const cardImage = cardItem.querySelector('.card__image');
-  const deleteButton = cardItem.querySelector('.card__delete-button');
 
   cardItem.querySelector('.card__title').textContent = card.name;
   cardImage.src = card.link;
   cardImage.alt = card.name;
-
-  deleteButton.addEventListener('click', () => {
-    handleDelete(cardItem);
-  });
 
   cardImage.addEventListener('click', () => {
     handleOpenImage(card.name, card.link);

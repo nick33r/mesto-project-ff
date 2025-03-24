@@ -1,15 +1,24 @@
 import '../pages/index.css';
 
-// Импорт модулей js
+// ------------------ Импорт модулей js ------------------
 
 import {createCard, deleteCard, likeCard} from './components/card.js';
 import {openModal, closeModal} from './components/modal.js';
 import {enableValidation, clearValidation} from './components/validation.js';
-import {getUserData, getCardsData, patchEditProfile, postNewCard, deleteCardInDatabase, toggleLike} from './components/api.js';
-
-// Импорт данных (дефолтные карточки при загрузке страницы)
-
-// import {initialCards} from './cards.js';
+import {
+  // Получение данных
+  getUserData,
+  getCardsData,
+  
+  // Работа с профилем
+  patchEditProfile,
+  patchAvatar,
+  
+  // Работа с карточками
+  postNewCard,
+  deleteCardInDatabase,
+  toggleLike
+} from './components/api.js';
 
 // ------------------ DOM узлы ------------------
 
@@ -22,6 +31,7 @@ const addButton = document.querySelector('.profile__add-button');
 const editPopup = document.querySelector('.popup_type_edit');
 const addPopup = document.querySelector('.popup_type_new-card');
 const imagePopup = document.querySelector('.popup_type_image');
+const editAvatarPopup = document.querySelector('.popup_type_edit-avatar');
 // Массив попапов
 const popups = document.querySelectorAll('.popup');
 // Узлы для редактирования профиля
@@ -37,9 +47,12 @@ const caption = document.querySelector('.popup__caption');
 // Узлы для добавления новой карточки
 const imageNameInput = document.querySelector('.popup__input_type_card-name');
 const linkInput = document.querySelector('.popup__input_type_url');
+// Узлы для редактирования аватара
+const avatarPopupInput = document.querySelector('.popup__input_type_avatar-url');
 // Формы для обработки
 const editForm = document.forms['edit-profile'];
 const addForm = document.forms['new-place'];
+const editAvatarForm = document.forms['edit-avatar'];
 // Количество лайков
 // const cardLikes = document.querySelector('.card__likes');
 
@@ -76,7 +89,7 @@ Promise.all([getUserData(apiConfig), getCardsData(apiConfig)])
   .then (([userData, cardsData]) => {
     nameElement.textContent = userData.name;
     jobElement.textContent = userData.about;
-    profileImage.src = userData.avatar;
+    profileImage.style.backgroundImage = `url(${userData.avatar})`;
 
     apiConfig.userId = userData['_id'];
 
@@ -84,7 +97,7 @@ Promise.all([getUserData(apiConfig), getCardsData(apiConfig)])
   })
   .then((cardsData) => {
     cardsData.forEach(card => {
-      const newCardElement = createCard(card, deleteCard, openImagePopup);
+      const newCardElement = createCard(card, openImagePopup);
       const likeButton = newCardElement.querySelector('.card__like-button');
       const cardLikes = newCardElement.querySelector('.card__likes');
 
@@ -125,6 +138,12 @@ addButton.addEventListener('click', () => {
   openModal(addPopup);
 });
 
+profileImage.addEventListener('click', () => {
+  avatarPopupInput.value = '';
+  clearValidation(editAvatarForm, validationConfig);
+  openModal(editAvatarPopup);
+});
+
 // Добавляем слушатели закрытий попапов по клику
 
 popups.forEach(popup => {
@@ -141,17 +160,26 @@ popups.forEach(popup => {
 editForm.addEventListener('submit', (event) => {
   event.preventDefault();
 
-  const newName = nameInput.value;
-  const newJob = jobInput.value;
-
-  nameElement.textContent = newName;
-  jobElement.textContent = newJob;
+  const submitButton = event.submitter;
+  submitButton.disabled = true;
+  submitButton.textContent = 'Сохранение...';
 
   patchEditProfile(apiConfig, nameInput, jobInput)
+    .then(() => {
+      const newName = nameInput.value;
+      const newJob = jobInput.value;
+
+      nameElement.textContent = newName;
+      jobElement.textContent = newJob;
+    })
     .catch((err) => {
       console.log(err);
+    })
+    .finally(() => {
+      submitButton.textContent = 'Сохранить';
+      closeModal(editPopup);
+      submitButton.disabled = false;
     });
-  closeModal(editPopup);
 });
 
 // Добавляем обработку отправки формы добавления новой карточки
@@ -159,9 +187,13 @@ editForm.addEventListener('submit', (event) => {
 addForm.addEventListener('submit', (event) => {
   event.preventDefault();
 
+  const submitButton = event.submitter;
+  submitButton.disabled = true;
+  submitButton.textContent = 'Сохранение...';
+
   postNewCard(apiConfig, imageNameInput, linkInput)
     .then((newCard) => {
-      const newCardElement = createCard(newCard, deleteCard, openImagePopup);
+      const newCardElement = createCard(newCard, openImagePopup);
       setupCardInteractions(newCard, newCardElement, apiConfig);
       placesList.prepend(newCardElement);
     })
@@ -171,10 +203,37 @@ addForm.addEventListener('submit', (event) => {
     .finally(() => {
       imageNameInput.value = '';
       linkInput.value = '';
+      submitButton.textContent = 'Сохранить';
+      closeModal(addPopup);
+      submitButton.disabled = false;
     });
-
-  closeModal(addPopup);
 });
+
+// Добавляем обработку отправки формы редактирования аватара
+
+editAvatarForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+
+  const submitButton = event.submitter;
+  submitButton.disabled = true;
+  submitButton.textContent = 'Сохранение...';
+
+  patchAvatar(apiConfig, avatarPopupInput)
+    .then((data) => {
+      profileImage.style.backgroundImage = `url(${data.avatar})`;
+    })
+    .catch((err) => {
+      console.log(err);
+    })
+    .finally(() => {
+      avatarPopupInput.value = '';
+      submitButton.textContent = 'Сохранить';
+      closeModal(editAvatarPopup);
+      submitButton.disabled = false;
+    });
+});
+
+// ------------------ Функции ------------------
 
 // Функция открытия картинки
 
@@ -186,7 +245,7 @@ function openImagePopup (name, link) {
   openModal(imagePopup);
 };
 
-// функция добавления слушателей с запросами на сервер к карточке
+// функция добавления слушателей к карточке с запросами на сервер
 
 function setupCardInteractions (cardData, newCardElement, apiConfig) {
   const deleteButton = newCardElement.querySelector('.card__delete-button');
@@ -221,7 +280,13 @@ function setupCardInteractions (cardData, newCardElement, apiConfig) {
   
   if (cardData.owner['_id'] === apiConfig.userId) {
     deleteButton.addEventListener('click', () => {
-      deleteCardInDatabase(apiConfig, cardData['_id']);
+      deleteCardInDatabase(apiConfig, cardData['_id'])
+        .then(() => {
+          deleteCard(newCardElement);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     });
   } else {
     deleteButton.remove();

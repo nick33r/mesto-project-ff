@@ -14,13 +14,7 @@ function getUserData (apiConfig) {
       if (res.ok) {
         return res.json();
       }
-      return Promise.reject(`Ошибка: ${res.status}`);
-    })
-    .then((data) => {
-      return data;
-    })
-    .catch((err) => {
-      console.log(err);
+      return Promise.reject(`Ошибка при инициализации пользователя: ${res.status}`);
     });
 };
 
@@ -37,13 +31,7 @@ function getCardsData (apiConfig) {
       if (res.ok) {
         return res.json();
       }
-      return Promise.reject(res.status);
-    })
-    .then((data) => {
-      return data;
-    })
-    .catch((err) => {
-      return Promise.reject(`Ошибка при инициализации карточек: ${err}`);
+      return Promise.reject(`Ошибка при инициализации карточек: ${res.status}`);
     });
 };
 
@@ -61,8 +49,11 @@ function patchEditProfile (apiConfig, nameElement, jobElement) {
       about: jobElement.value
     })
   })
-    .catch((err) => {
-      return Promise.reject(`Ошибка при редактировании профиля: ${err}`);
+    .then((res) => {
+      if (res.ok) {
+        return res.json();
+      }
+      return Promise.reject(`Ошибка при редактировании профиля: ${res.status}`);
     });
 };
 
@@ -84,13 +75,7 @@ function postNewCard (apiConfig, imageNameInput, linkInput) {
       if (res.ok) {
         return res.json();
       }
-      return Promise.reject(res.status);
-    })
-    .then((data) => {
-      return data;
-    })
-    .catch((err) => {
-      return Promise.reject(`Ошибка при добавлении карточки: ${err}`);
+      return Promise.reject(`Ошибка при добавлении карточки: ${res.status}`);
     });
 };
 
@@ -105,11 +90,8 @@ function deleteCardInDatabase (apiConfig, cardId) {
   })
     .then((res) => {
       if (!res.ok) {
-        return Promise.reject(res.status);
+        return Promise.reject(`Ошибка при удалении карточки: ${res.status}`);
       }
-    })
-    .catch((err) => {
-      return Promise.reject(`Ошибка при удалении карточки: ${err}`);
     });
 };
 
@@ -126,14 +108,29 @@ function toggleLike (apiConfig, cardId, method) {
       if (res.ok) {
         return res.json();
       }
-      return Promise.reject(res.status);
-    })
-    .then((data) => {
-      return data;
-    })
-    .catch((err) => {
-      return Promise.reject(`Ошибка при лайке карточки: ${err}`);
+      return Promise.reject(`Ошибка при лайке карточки: ${res.status}`);
     });
 };
 
-export { getUserData, getCardsData, patchEditProfile, postNewCard, deleteCardInDatabase, toggleLike };
+// Функция обновления аватара
+
+function patchAvatar (apiConfig, linkInput) {
+  return fetch(`${apiConfig.baseUrl}/users/me/avatar`, {
+    method: 'PATCH',
+    headers: {
+      authorization: apiConfig.headers.authorization,
+      'Content-Type': apiConfig.headers['Content-Type']
+    },
+    body: JSON.stringify({
+      avatar: linkInput.value
+    })
+  })
+    .then((res) => {
+      if (res.ok) {
+        return res.json();
+      }
+      return Promise.reject(`Ошибка при обновлении аватара: ${res.status}`);
+    });
+};
+
+export { getUserData, getCardsData, patchEditProfile, postNewCard, deleteCardInDatabase, toggleLike, patchAvatar };
