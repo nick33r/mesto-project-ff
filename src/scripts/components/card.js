@@ -5,12 +5,11 @@
 // input: handleOpenImage - функция открытия картинки по клику
 // output: DOM-узел новой карточки
 
-function createCard(card, handleDelete, handleLike, handleOpenImage) {
+function createCard(card, handleDelete, handleOpenImage) {
   const cardTemplate = document.querySelector('#card-template').content;
   const cardItem = cardTemplate.querySelector('.places__item').cloneNode(true);
   const cardImage = cardItem.querySelector('.card__image');
   const deleteButton = cardItem.querySelector('.card__delete-button');
-  const likeButton = cardItem.querySelector('.card__like-button');
 
   cardItem.querySelector('.card__title').textContent = card.name;
   cardImage.src = card.link;
@@ -18,10 +17,6 @@ function createCard(card, handleDelete, handleLike, handleOpenImage) {
 
   deleteButton.addEventListener('click', () => {
     handleDelete(cardItem);
-  });
-
-  likeButton.addEventListener('click', () => {
-    handleLike(likeButton);
   });
 
   cardImage.addEventListener('click', () => {
@@ -41,8 +36,8 @@ function deleteCard(itemToDelete) {
 // Функция добавления/снятия лайка
 // input: itemToLike - DOM элемент кнопки лайка
 
-function likeCard(itemToLike) {
-  itemToLike.classList.toggle('card__like-button_is-active');
+function likeCard(itemToLike, chekStatus) {
+  itemToLike.classList.toggle('card__like-button_is-active', chekStatus);
 };
 
 export { createCard, deleteCard, likeCard };

@@ -26,7 +26,7 @@ function getUserData (apiConfig) {
 
 // Функция вывода карточек
 
-function getCards (apiConfig) {
+function getCardsData (apiConfig) {
   return fetch(`${apiConfig.baseUrl}/cards`, {
     method: 'GET',
     headers: {
@@ -136,4 +136,4 @@ function toggleLike (apiConfig, cardId, method) {
     });
 };
 
-export { getUserData, getCards, patchEditProfile, postNewCard, deleteCardInDatabase, toggleLike };
+export { getUserData, getCardsData, patchEditProfile, postNewCard, deleteCardInDatabase, toggleLike };

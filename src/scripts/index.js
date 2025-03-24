@@ -5,7 +5,7 @@ import '../pages/index.css';
 import {createCard, deleteCard, likeCard} from './components/card.js';
 import {openModal, closeModal} from './components/modal.js';
 import {enableValidation, clearValidation} from './components/validation.js';
-import {getUserData, getCards, patchEditProfile, postNewCard, deleteCardInDatabase, toggleLike} from './components/api.js';
+import {getUserData, getCardsData, patchEditProfile, postNewCard, deleteCardInDatabase, toggleLike} from './components/api.js';
 
 // Импорт данных (дефолтные карточки при загрузке страницы)
 
@@ -43,8 +43,17 @@ const addForm = document.forms['new-place'];
 // Количество лайков
 // const cardLikes = document.querySelector('.card__likes');
 
-// Конфиги
+// ------------------ Конфиги ------------------
 
+// Конфиг для валидации
+const validationConfig = {
+  formSelector: '.popup__form',
+  inputSelector: '.popup__input',
+  submitButtonSelector: '.popup__button',
+  inactiveButtonClass: 'popup__button_disabled',
+  inputErrorClass: 'popup__input_type_error',
+  errorClass: 'popup__error_visible'
+};
 // Конфиг для API
 const apiConfig = {
   baseUrl: 'https://nomoreparties.co/v1/wff-cohort-35',
@@ -57,28 +66,25 @@ const apiConfig = {
 
 // ------------------ Инициализация страницы ------------------
 
-// Вывести данные профиля из API
+// Включаем валидацию форм
 
-Promise.all([getUserData(apiConfig, nameElement, jobElement, profileImage)])
-  .then(([data]) => {
-    nameElement.textContent = data.name;
-    jobElement.textContent = data.about;
-    profileImage.src = data.avatar;
+enableValidation(validationConfig);
 
-    apiConfig.userId = data['_id'];
+// Получаем данные пользователя и карточек с сервера, отображаем их в профиле и рендерим карточки
+
+Promise.all([getUserData(apiConfig), getCardsData(apiConfig)])
+  .then (([userData, cardsData]) => {
+    nameElement.textContent = userData.name;
+    jobElement.textContent = userData.about;
+    profileImage.src = userData.avatar;
+
+    apiConfig.userId = userData['_id'];
+
+    return cardsData;
   })
-  .catch((err) => {
-    console.log(err);
-  })
-;
-
-// Вывести дефолтные карточки на страницу при загрузке, API
-
-Promise.all([getCards(apiConfig)])
-  .then(([cards]) => {
-    cards.forEach(card => {
-      const newCardElement = createCard(card, deleteCard, likeCard, openImagePopup);
-      const deleteButton = newCardElement.querySelector('.card__delete-button');
+  .then((cardsData) => {
+    cardsData.forEach(card => {
+      const newCardElement = createCard(card, deleteCard, openImagePopup);
       const likeButton = newCardElement.querySelector('.card__like-button');
       const cardLikes = newCardElement.querySelector('.card__likes');
 
@@ -89,39 +95,17 @@ Promise.all([getCards(apiConfig)])
         const isLiked = card.likes.some(like => like['_id'] === apiConfig.userId);
 
         if (isLiked) {
-          likeButton.classList.add('card__like-button_is-active');
+          likeCard(likeButton);
         }
       };
 
-      likeButton.addEventListener('click', () => {
-        const method = likeButton.classList.contains('card__like-button_is-active') ? 'PUT' : 'DELETE';
-
-        Promise.all([toggleLike(apiConfig, card['_id'], method)])
-          .then(([data]) => {
-            cardLikes.textContent = `${data.likes.length}`;
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      });
-      
-      if (card.owner._id === apiConfig.userId) {
-        deleteButton.addEventListener('click', () => {
-          deleteCardInDatabase(apiConfig, card['_id']);
-        });
-      } else {
-        deleteButton.remove();
-      }
+      setupCardInteractions(card, newCardElement, apiConfig);
     });
   })
   .catch((err) => {
     console.log(err);
   })
 ;
-
-// initialCards.forEach(card => {
-//   placesList.appendChild(createCard(card, deleteCard, likeCard, openImagePopup));
-// });
 
 // ------------------ Слушатели событий ------------------
 
@@ -175,24 +159,18 @@ editForm.addEventListener('submit', (event) => {
 addForm.addEventListener('submit', (event) => {
   event.preventDefault();
 
-  // const newCard = {
-  //   name: imageNameInput.value,
-  //   link: linkInput.value
-  // };
-
-  Promise.all([postNewCard(apiConfig, imageNameInput, linkInput)])
-    .then(([newCard]) => {
-      const newCardElement = createCard(newCard, deleteCard, likeCard, openImagePopup);
+  postNewCard(apiConfig, imageNameInput, linkInput)
+    .then((newCard) => {
+      const newCardElement = createCard(newCard, deleteCard, openImagePopup);
+      setupCardInteractions(newCard, newCardElement, apiConfig);
       placesList.prepend(newCardElement);
     })
-    .then(() => {
-      imageNameInput.value = '';
-      linkInput.value = '';
-    })
     .catch((err) => {
+      console.log(err);
+    })
+    .finally(() => {
       imageNameInput.value = '';
       linkInput.value = '';
-      console.log(err);
     });
 
   closeModal(addPopup);
@@ -208,36 +186,44 @@ function openImagePopup (name, link) {
   openModal(imagePopup);
 };
 
-// TEST !!!!!
+// функция добавления слушателей с запросами на сервер к карточке
 
-const validationConfig = {
-  formSelector: '.popup__form',
-  inputSelector: '.popup__input',
-  submitButtonSelector: '.popup__button',
-  inactiveButtonClass: 'popup__button_disabled',
-  inputErrorClass: 'popup__input_type_error',
-  errorClass: 'popup__error_visible'
-};
+function setupCardInteractions (cardData, newCardElement, apiConfig) {
+  const deleteButton = newCardElement.querySelector('.card__delete-button');
+  const likeButton = newCardElement.querySelector('.card__like-button');
+  const cardLikes = newCardElement.querySelector('.card__likes');
 
-enableValidation(validationConfig);
+  likeButton.addEventListener('click', () => {
+    const isLiked = likeButton.classList.contains('card__like-button_is-active');
+    const method = isLiked ? 'DELETE' : 'PUT';
 
-// TEST 2 !!!!!
+    const previousLikes = parseInt(cardLikes.textContent);
+    cardLikes.textContent = isLiked ? previousLikes - 1 : previousLikes + 1;
 
-// const apiConfig = {
-//   baseUrl: 'https://nomoreparties.co/v1/wff-cohort-35',
-//   headers: {
-//     authorization: '025ba30a-6c57-44d8-9f11-68a718bec502',
-//     'Content-Type': 'application/json'
-//   }
-// };
+    const previousButtonState = isLiked;
+    likeCard(likeButton);
 
-profileImage.addEventListener('click', async () => {
-  const res = await fetch(`${apiConfig.baseUrl}/users/me`, {
-    method: 'GET',
-    headers: {
-      authorization: apiConfig.headers.authorization
-    }
+    likeButton.disabled = true;
+
+    toggleLike(apiConfig, cardData['_id'], method)
+      .then((data) => {
+        cardLikes.textContent = `${data.likes.length}`;
+      })
+      .catch((err) => {
+        console.log(err);
+        likeCard(likeButton, previousButtonState);
+        cardLikes.textContent = previousLikes;
+      })
+      .finally(() => {
+        likeButton.disabled = false;
+      });
   });
-  const result_1 = await res.json();
-  console.log(result_1);
-});
+  
+  if (cardData.owner['_id'] === apiConfig.userId) {
+    deleteButton.addEventListener('click', () => {
+      deleteCardInDatabase(apiConfig, cardData['_id']);
+    });
+  } else {
+    deleteButton.remove();
+  }
+};
