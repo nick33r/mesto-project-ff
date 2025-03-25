@@ -16,12 +16,7 @@ function getUserData (apiConfig) {
       authorization: apiConfig.headers.authorization
     }
   })
-    .then((res) => {
-      if (res.ok) {
-        return res.json();
-      }
-      return Promise.reject(`Ошибка при инициализации пользователя: ${res.status}`);
-    });
+    .then(checkResponse);
 };
 
 // Функция вывода карточек
@@ -33,12 +28,7 @@ function getCardsData (apiConfig) {
       authorization: apiConfig.headers.authorization
     }
   })
-    .then((res) => {
-      if (res.ok) {
-        return res.json();
-      }
-      return Promise.reject(`Ошибка при инициализации карточек: ${res.status}`);
-    });
+    .then(checkResponse);
 };
 
 // Функция редактирования профиля
@@ -55,12 +45,7 @@ function patchEditProfile (apiConfig, nameElement, jobElement) {
       about: jobElement.value
     })
   })
-    .then((res) => {
-      if (res.ok) {
-        return res.json();
-      }
-      return Promise.reject(`Ошибка при редактировании профиля: ${res.status}`);
-    });
+    .then(checkResponse);
 };
 
 // Функция добавления новой карточки
@@ -77,12 +62,7 @@ function postNewCard (apiConfig, imageNameInput, linkInput) {
       link: linkInput.value
     })
   })
-    .then((res) => {
-      if (res.ok) {
-        return res.json();
-      }
-      return Promise.reject(`Ошибка при добавлении карточки: ${res.status}`);
-    });
+    .then(checkResponse);
 };
 
 // Функция удаления карточки из базы данных
@@ -94,11 +74,7 @@ function deleteCardInDatabase (apiConfig, cardId) {
       authorization: apiConfig.headers.authorization
     }
   })
-    .then((res) => {
-      if (!res.ok) {
-        return Promise.reject(`Ошибка при удалении карточки: ${res.status}`);
-      }
-    });
+    .then(checkResponse);
 };
 
 // Функция лайка карточки
@@ -110,12 +86,7 @@ function toggleLike (apiConfig, cardId, method) {
       authorization: apiConfig.headers.authorization
     }
   })
-    .then((res) => {
-      if (res.ok) {
-        return res.json();
-      }
-      return Promise.reject(`Ошибка при лайке карточки: ${res.status}`);
-    });
+    .then(checkResponse);
 };
 
 // Функция обновления аватара
@@ -131,12 +102,16 @@ function patchAvatar (apiConfig, linkInput) {
       avatar: linkInput.value
     })
   })
-    .then((res) => {
-      if (res.ok) {
-        return res.json();
-      }
-      return Promise.reject(`Ошибка при обновлении аватара: ${res.status}`);
-    });
+    .then(checkResponse);
+};
+
+// Функция обработки запроса к серверу
+
+function checkResponse(res) {
+  if (res.ok) {
+    return res.json();
+  }
+  return Promise.reject(`Запрос к серверу вернул ошибку: ${res.status}`);
 };
 
 export { getUserData, getCardsData, patchEditProfile, postNewCard, deleteCardInDatabase, toggleLike, patchAvatar };

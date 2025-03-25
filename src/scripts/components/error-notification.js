@@ -11,7 +11,7 @@ function showError(message, errorPopup, errorPopupMessage) {
   
   hideTimeout = setTimeout(() => {
     hideError(errorPopup);
-  }, 3000);
+  }, 4000);
 }
 
 // Функция скрытия уведомления ошибки
@@ -20,4 +20,4 @@ function hideError(errorPopup) {
   errorPopup.classList.remove('error-popup_visible');
 };
 
-export { showError, hideError };
+export { showError };

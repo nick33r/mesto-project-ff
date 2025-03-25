@@ -5,10 +5,12 @@
 // input: handleOpenImage - функция открытия картинки по клику
 // output: DOM-узел новой карточки
 
-function createCard(card, handleOpenImage) {
+function createCard(card, handleLike, handleDelete, handleOpenImage, isLiked = false) {
   const cardTemplate = document.querySelector('#card-template').content;
   const cardItem = cardTemplate.querySelector('.places__item').cloneNode(true);
   const cardImage = cardItem.querySelector('.card__image');
+  const cardDeleteButton = cardItem.querySelector('.card__delete-button');
+  const cardLikeButton = cardItem.querySelector('.card__like-button');
 
   cardItem.querySelector('.card__title').textContent = card.name;
   cardImage.src = card.link;
@@ -18,6 +20,12 @@ function createCard(card, handleOpenImage) {
     handleOpenImage(card.name, card.link);
   });
 
+  cardDeleteButton.addEventListener('click', handleDelete);
+
+  cardLikeButton.addEventListener('click', handleLike);
+  
+  likeCard(cardLikeButton, isLiked);
+  
   return cardItem;
 };
 
