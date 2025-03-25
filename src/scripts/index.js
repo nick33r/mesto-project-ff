@@ -110,18 +110,14 @@ Promise.all([getUserData(apiConfig), getCardsData(apiConfig)])
         (event) => handleLike(newCardElement, event, cardData, apiConfig),
         () => handleDelete(newCardElement, cardData),
         handleImageOpener,
-        isLikedStatusCheck(cardData, userData)
+        isLikedStatusCheck(cardData, userData),
+        isOwnerStatusCheck(cardData, userData)
       );
 
       const cardLikes = newCardElement.querySelector('.card__likes');
 
       placesList.appendChild(newCardElement);
       cardLikes.textContent = `${cardData.likes.length}`;
-
-      if (cardData.owner['_id'] !== userData['_id']) {
-        const deleteButton = newCardElement.querySelector('.card__delete-button');
-        deleteButton.remove();
-      }
     });
   })
   .catch((err) => {
@@ -295,6 +291,12 @@ function handleImageOpener (name, link) {
 function isLikedStatusCheck (cardData, userData) {
   return cardData.likes.some(like => like['_id'] === userData['_id']);
 };
+
+// Функция проверки создателя карточки относительно текущего пользователя
+
+function isOwnerStatusCheck (cardData, userData) {
+  return cardData.owner['_id'] === userData['_id'];
+}
 
 // Функция обработки лайка
 

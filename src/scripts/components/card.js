@@ -5,7 +5,7 @@
 // input: handleOpenImage - функция открытия картинки по клику
 // output: DOM-узел новой карточки
 
-function createCard(card, handleLike, handleDelete, handleOpenImage, isLiked = false) {
+function createCard(card, handleLike, handleDelete, handleOpenImage, isLiked = false, isOwner = true) {
   const cardTemplate = document.querySelector('#card-template').content;
   const cardItem = cardTemplate.querySelector('.places__item').cloneNode(true);
   const cardImage = cardItem.querySelector('.card__image');
@@ -20,7 +20,11 @@ function createCard(card, handleLike, handleDelete, handleOpenImage, isLiked = f
     handleOpenImage(card.name, card.link);
   });
 
-  cardDeleteButton.addEventListener('click', handleDelete);
+  if (!isOwner) {
+    cardDeleteButton.remove();
+  } else {
+    cardDeleteButton.addEventListener('click', handleDelete);
+  }
 
   cardLikeButton.addEventListener('click', handleLike);
   
