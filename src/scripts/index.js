@@ -101,23 +101,16 @@ Promise.all([getUserData(apiConfig), getCardsData(apiConfig)])
     jobElement.textContent = userData.about;
     profileImage.style.backgroundImage = `url(${userData.avatar})`;
 
-    return [userData, cardsData];
-  })
-  .then(([userData, cardsData]) => {
     cardsData.forEach(cardData => {
       const newCardElement = createCard(
         cardData,
         (event) => handleLike(newCardElement, event, cardData, apiConfig),
         () => handleDelete(newCardElement, cardData),
         handleImageOpener,
-        isLikedStatusCheck(cardData, userData),
-        isOwnerStatusCheck(cardData, userData)
+        userData
       );
 
-      const cardLikes = newCardElement.querySelector('.card__likes');
-
       placesList.appendChild(newCardElement);
-      cardLikes.textContent = `${cardData.likes.length}`;
     });
   })
   .catch((err) => {
@@ -286,19 +279,7 @@ function handleImageOpener (name, link) {
   openModal(imagePopup);
 };
 
-// Функция проверки статуса лайка пользователем
-
-function isLikedStatusCheck (cardData, userData) {
-  return cardData.likes.some(like => like['_id'] === userData['_id']);
-};
-
-// Функция проверки создателя карточки относительно текущего пользователя
-
-function isOwnerStatusCheck (cardData, userData) {
-  return cardData.owner['_id'] === userData['_id'];
-}
-
-// Функция обработки лайка
+// Функция обработки лайка с отправкой запроса к серверу
 
 function handleLike (cardElement, event, cardData, apiConfig) {
   const likeButton = event.target;
